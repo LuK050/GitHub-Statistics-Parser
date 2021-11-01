@@ -7,6 +7,7 @@ class Parser:
         nick = str(input("Введи ник пользователя на GitHub > "))
         return nick
 
+    
     def parse():
         nick = Parser.get_nick()
 
