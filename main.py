@@ -16,7 +16,6 @@ class Parser:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
         }
 
-
         response = requests.get(url, headers = headers)
         soap = BS(response.content, "html.parser")
         
@@ -35,8 +34,7 @@ class Parser:
         count_followers = soap.find("a", href = f"https://github.com/{nick}?tab=followers").find("span", class_ = "text-bold color-fg-default").get_text(strip = True)
         count_following = soap.find("a", href = f"https://github.com/{nick}?tab=following").find("span", class_ = "text-bold color-fg-default").get_text(strip = True)
         count_stars = soap.find("a", href = f"https://github.com/{nick}?tab=stars").find("span", class_ = "text-bold color-fg-default").get_text(strip = True)
-        count_repositories = soap.find("span", class_ = f"Counter").get_text()
-        
+        count_repositories = int(soap.find("span", class_ = f"Counter").get_text())
 
         site = soap.find("li", itemprop = "url")
         if site is None:
@@ -65,17 +63,30 @@ class Parser:
                 bio = "Не указано"
 
 
-        if count_repositories != 0:
-
+        if count_repositories is not None and count_repositories != 0:
             response = requests.get(url + "?tab=repositories", headers = headers)
             soap = BS(response.content, "html.parser")
             last_repositorie = soap.find("a", itemprop = f"name codeRepository").get_text(strip = True)
 
             languages = []
-            languages_repositories = soap.findAll("span", itemprop = f"programmingLanguage")
+            page = 1
 
-            for language in languages_repositories:
-                languages.append(language.get_text(strip = True))
+            while True:
+
+                if page != 1:
+                    next = soap.find("div", class_ = f"BtnGroup").find("a", text = "Next").get_attribute_list('href')[0]
+                    response = requests.get(next, headers = headers)
+                    soap = BS(response.content, "html.parser")
+
+                languages_repositories = soap.findAll("span", itemprop = f"programmingLanguage")
+
+                for language in languages_repositories:
+                    languages.append(language.get_text(strip = True))
+
+                if count_repositories > page * 30: 
+                    page += 1
+                else: 
+                    break
 
             if languages:
                 languages_text = ', '.join(list(set(languages)))
@@ -95,7 +106,7 @@ class Parser:
             text = text + f"\n╸ Последняя репозитория • {last_repositorie}"
 
             if languages:
-                text = text + f"\n┌ Использовал языки • {languages_text}" + f"\n└ Самый используемый язык • {max_language[0]}"
+                text = text + f"\n┌ Используемые языки • {languages_text}" + f"\n└ Самый используемый язык • {max_language[0]}"
 
         print(text + "\n\n"); input()
         
