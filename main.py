@@ -7,7 +7,6 @@ class Parser:
         nick = str(input("Введи ник пользователя на GitHub > "))
         return nick
 
-    
     def parse():
         nick = Parser.get_nick()
 
@@ -78,20 +77,25 @@ class Parser:
             for language in languages_repositories:
                 languages.append(language.get_text(strip = True))
 
-            languages_text = ', '.join(list(set(languages)))
+            if languages:
+                languages_text = ', '.join(list(set(languages)))
 
-            max_language = None
+                max_language = None
 
-            for language in list(set(languages)):
-                count = languages.count(language)
+                for language in list(set(languages)):
+                    count = languages.count(language)
 
-                if max_language is None or count > max_language[1]:
-                    max_language = (language, count)
+                    if max_language is None or count > max_language[1]:
+                        max_language = (language, count)        
 
 
         text = f"\n╸ Информация о \"{nick}\"\n┌ Имя • {name}\n├ Био • {bio}\n├ Локация • {location}\n├ Сайт • {site}\n└ Подписчиков • {count_followers} | Подписок • {count_following} | Звёзд • {count_stars}\n\n╸ Всего открытых репозиториев • {count_repositories}"
+        
         if count_repositories != 0:
-            text = text + f"\n┌ Последняя репозитория • {last_repositorie}" + f"\n├ Использовал языки • {languages_text}" + f"\n└ Самый используемый язык • {max_language[0]}"
+            text = text + f"\n╸ Последняя репозитория • {last_repositorie}"
+
+            if languages:
+                text = text + f"\n┌ Использовал языки • {languages_text}" + f"\n└ Самый используемый язык • {max_language[0]}"
 
         print(text + "\n\n"); input()
         
