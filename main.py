@@ -7,9 +7,9 @@ class Parser:
         nick = str(input("Введи ник пользователя на GitHub > "))
         return nick
 
+    
     def parse():
         nick = Parser.get_nick()
-
 
         url = f"https://github.com/{nick}"
         headers = {
@@ -72,7 +72,6 @@ class Parser:
             page = 1
 
             while True:
-
                 if page != 1:
                     next = soap.find("div", class_ = f"BtnGroup").find("a", text = "Next").get_attribute_list('href')[0]
                     response = requests.get(next, headers = headers)
